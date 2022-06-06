@@ -1353,6 +1353,12 @@ int run_polyjuice() {
     return ret;
   }
 
+  //check gas limit
+  if (msg.gas < MIN_TRANSACTION_GAS) {
+    debug_print_int("Min gas limit is 21000. Insufficient gas limit", msg.gas);
+    return ERROR_INSUFFICIENT_GAS_LIMIT;
+  }
+
   /* Load: validator_code_hash, hash_type, g_sudt_id */
   ret = load_globals(&context, context.transaction_context.to_id);
   if (ret != 0) {
@@ -1420,6 +1426,9 @@ int run_polyjuice() {
 
   debug_print_int("gas limit", msg.gas);
   debug_print_int("gas left", res.gas_left);
+  if (gas_used < MIN_TRANSACTION_GAS) {
+    gas_used = MIN_TRANSACTION_GAS;
+  }
   uint256_t fee_u256 = calculate_fee(gas_price, gas_used);
 
   gw_reg_addr_t sender_addr = new_reg_addr(msg.sender.bytes);
